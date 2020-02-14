@@ -1,0 +1,32 @@
+# 文件输入
+filebeat.inputs:
+  # 文件输入类型
+  - type: log
+    # 开启加载
+    enabled: true
+    # 文件位置
+    paths:
+    - ~/wweb/logs/access.log
+    # 自定义参数
+    fields_under_root: true
+
+processors:
+ - decode_json_fields:
+     fields: ["message"]
+     process_array: false
+     max_depth: 1
+     target: ""
+     overwrite_keys: false
+ - drop_fields: 
+     fields: ["@timestamp","log","input","host","agent","@metadata","ecs","message"]	 
+
+setup.template.name: "access-"
+setup.template.pattern: "access-*"
+setup.ilm.enabled: false
+setup.template.enabled: false
+
+# 输出至elasticsearch
+output.elasticsearch:
+  hosts: ["127.0.0.1:9200"]
+  index: "access-log-%{+yyyy.MM.dd}"
+
